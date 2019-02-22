@@ -11,17 +11,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
 from keras.models import Model
 from keras.layers import Dense, Embedding, Input, LSTM
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.optimizers import Adam, SGD
-
-import xlsxwriter
-
-workbook = xlsxwriter.Workbook('arrays.xlsx')
-worksheet = workbook.add_worksheet()
 
 
 # some configuration
@@ -53,27 +47,16 @@ all_lines = input_texts + target_texts
 
 print(all_lines[:10])
 
-print(len(input_texts))
-print(input_texts[:10])
-print(target_texts[:10])
-
 # convert the sentences (strings) into integers
 ##Tokenizer function of keras  to turn text into seq of integers
-##num_words param keeps words based on freauency of words
 tokenizer = Tokenizer(num_words=MAX_VOCAB_SIZE, filters='')
-##change the above to have no limit on VOCAB_SIZE  
-
-
 tokenizer.fit_on_texts(all_lines)
 #print(tokenizer.fit_on_texts(all_lines[:10]))
 input_sequences = tokenizer.texts_to_sequences(input_texts)
 print(input_texts[:2])
-#print(tokenizer.texts_to_sequences(input_texts[:2]))
+print(tokenizer.texts_to_sequences(input_texts[:2]))
 print(input_sequences[:10])
-print(input_texts[:10])
-print(type(input_sequences))
 target_sequences = tokenizer.texts_to_sequences(target_texts)
-print(target_sequences[:10])
 
 # find max seq length
 max_sequence_length_from_data = max(len(s) for s in input_sequences)
@@ -82,11 +65,11 @@ print('Max sequence length:', max_sequence_length_from_data)
 
 # get word -> integer mapping
 word2idx = tokenizer.word_index
-##print(type(word2idx))
+print(type(word2idx))
 print('Found %s unique tokens.' % len(word2idx))
-## 3056 tokens
 
-##assert('Anshuman' in word2idx)
+## 3056 tokens
+assert('<sos>' in word2idx)
 assert('<eos>' in word2idx)
 
 
@@ -94,11 +77,9 @@ assert('<eos>' in word2idx)
 max_sequence_length = min(max_sequence_length_from_data, MAX_SEQUENCE_LENGTH)
 print(max_sequence_length)
 ##Max Sequence length is 12
-#PAd sequencing for ones which are less the max seq lenght of line
 input_sequences = pad_sequences(input_sequences, maxlen=max_sequence_length, padding='post')
 target_sequences = pad_sequences(target_sequences, maxlen=max_sequence_length, padding='post')
 print('Shape of data tensor:', input_sequences.shape)
-print(type(input_sequences))
 
 
 
@@ -126,7 +107,6 @@ num_words = min(MAX_VOCAB_SIZE, len(word2idx) + 1)
 print(num_words)
 print(len(word2idx))
 print(EMBEDDING_DIM)
-##First have the embedding matrix created to have all zeroes and then populate it.The embedding matrix will be vocab size and dimensions defined
 embedding_matrix = np.zeros((num_words, EMBEDDING_DIM))
 print(embedding_matrix)
 
@@ -139,13 +119,7 @@ for word, i in word2idx.items():
       embedding_matrix[i] = embedding_vector
 
 print(embedding_matrix)
-
 print(embedding_matrix[:,1])
-print(type(embedding_matrix))
-
-print(embedding_matrix.shape)
-
-np.savetxt("D:/Data Science/POC/matrix_embedding.csv", embedding_matrix, delimiter=",")
 
 print(len(input_sequences))##1436
 print(max_sequence_length) ###12
